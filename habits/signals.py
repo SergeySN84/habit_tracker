@@ -13,10 +13,10 @@ def create_or_update_reminder_task(sender, instance, created, **kwargs):
     schedule, _ = CrontabSchedule.objects.get_or_create(
         minute=instance.time.minute,
         hour=instance.time.hour,
-        day_of_week='*',
-        day_of_month='*',
-        month_of_year='*',
-        timezone='UTC'
+        day_of_week="*",
+        day_of_month="*",
+        month_of_year="*",
+        timezone="UTC",
     )
 
     task_name = f"habit-reminder-{instance.id}"
@@ -35,9 +35,9 @@ def create_or_update_reminder_task(sender, instance, created, **kwargs):
     PeriodicTask.objects.update_or_create(
         name=task_name,
         defaults={
-            'crontab': schedule,
-            'task': 'telegram_bot.tasks.send_telegram_notification',
-            'args': json.dumps([instance.user.telegram_chat_id, message]),
-            'enabled': True,
-        }
+            "crontab": schedule,
+            "task": "telegram_bot.tasks.send_telegram_notification",
+            "args": json.dumps([instance.user.telegram_chat_id, message]),
+            "enabled": True,
+        },
     )
