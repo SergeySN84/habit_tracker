@@ -28,9 +28,15 @@ jobs:
         run: |
           poetry run flake8 .
 
-      - name: Run tests with coverage
+      - name: Create .env for tests
         run: |
-          poetry run coverage run manage.py test
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+          echo "DEBUG=True" >> .env
+          echo "DATABASE_URL=sqlite:///db.sqlite3" >> .env
+          echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
+
+      - name: Run tests
+        run: poetry run coverage run manage.py test
 
       - name: Check coverage >= 80%
         run: |
