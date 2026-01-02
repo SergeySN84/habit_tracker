@@ -1,0 +1,63 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - "feature/homework_35.2"
+      - "develop"
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install --with dev
+
+      - name: Run Flake8 (linting)
+        run: |
+          poetry run flake8 .
+
+      - name: Run tests with coverage
+        run: |
+          poetry run coverage run manage.py test
+
+      - name: Check coverage >= 80%
+        run: |
+          poetry run coverage report --fail-under=80
+
+  build-and-deploy:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images (dry run)
+        run: |
+          docker compose -f docker-compose.prod.yml build
+
+      - name: Deploy to remote server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /opt/habit-tracker
+            git pull origin develop
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml up -d --build
