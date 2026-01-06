@@ -65,5 +65,5 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_DIR }}
             git pull origin ${{ github.ref_name }}
-            docker compose -f docker-compose.prod.yml down
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker-compose -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.prod.yml up -d --build
