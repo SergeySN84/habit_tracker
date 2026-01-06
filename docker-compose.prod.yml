@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   web:
-    image: your-registry/habit-tracker-web:latest
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
     volumes:
       - static_volume:/vol/static
     env_file:
@@ -12,7 +14,9 @@ services:
       - redis
 
   worker:
-    image: your-registry/habit-tracker-web:latest
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
     command: celery -A config worker --loglevel=info
     env_file:
       - .env.prod
@@ -20,7 +24,9 @@ services:
       - redis
 
   beat:
-    image: your-registry/habit-tracker-web:latest
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
     command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file:
       - .env.prod
@@ -28,10 +34,11 @@ services:
       - redis
 
   nginx:
-    image: your-registry/habit-tracker-nginx:latest
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - static_volume:/vol/static
     depends_on:
