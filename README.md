@@ -12,7 +12,7 @@
 ### Шаги
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/sergeysn/habit-tracker.git
+https://github.com/SergeySN84/habit_tracker.git
 cd habit-tracker
 
 # 2. Установить зависимости
