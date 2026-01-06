@@ -33,6 +33,6 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
-    path('', RedirectView.as_view(url='/api/docs/', permanent=False)),
+    path('', RedirectView.as_view(url='/api/', permanent=False)),
 
 ]
