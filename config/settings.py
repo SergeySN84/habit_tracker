@@ -1,7 +1,6 @@
 """
 Django settings for config project.
 """
-
 import os
 from pathlib import Path
 from datetime import timedelta
