@@ -14,7 +14,7 @@
 # 1. Клонировать репозиторий
 https://github.com/SergeySN84/habit_tracker.git
 cd habit-tracker
-
+```
 # 2. Установить зависимости
 poetry install
 
@@ -29,3 +29,9 @@ python manage.py migrate
 
 # 6. Запустить сервер
 python manage.py runserver
+
+## Демо (развёрнуто на сервере)
+```bash
+**API**: [http://84.252.141.96/api/](http://84.252.141.96/api/)  
+**Swagger UI**: [http://84.252.141.96/schema/swagger-ui/](http://84.252.141.96/schema/swagger-ui/)
+```
