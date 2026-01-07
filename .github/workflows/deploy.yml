@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "feature/kursovaja_5"
-      - "feature/homework_30.1"
+      - "feature/the_final_task"
 
 jobs:
   lint-and-test:
