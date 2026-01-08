@@ -50,6 +50,3 @@ htmlcov/
 
 # macOS
 .DS_Store
-
-# Poetry
-poetry.lock
