@@ -45,7 +45,7 @@ jobs:
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
           echo "DEBUG=True" >> .env
           echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
-          echo "DB_NAME=test_habit_db" >> .env
+          echo "DB_NAME=test_habit_db_${{ github.run_id }}" >> .env
           echo "DB_USER=habit_user" >> .env
           echo "DB_PASSWORD=123159" >> .env
           echo "DB_HOST=localhost" >> .env
@@ -55,10 +55,15 @@ jobs:
         run: poetry run flake8 .
 
       - name: Run tests with coverage
-        run: poetry run coverage run manage.py test
+        run: poetry run coverage run manage.py test --keepdb
 
       - name: Check coverage >= 80%
         run: poetry run coverage report --fail-under=80
+
+      - name: Clean up test database
+        run: |
+          PGPASSWORD=123159 psql -h localhost -U habit_user -c "DROP DATABASE IF EXISTS test_habit_db;"
+        if: always()
 
   build-and-deploy:
     needs: lint-and-test
