@@ -54,8 +54,8 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     environment:
       POSTGRES_DB: habit_db
-      POSTGRES_USER: habit_user
-      POSTGRES_PASSWORD: habit_pass
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123159
 
   redis:
     image: redis:7-alpine
