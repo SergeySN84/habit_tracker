@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - "develop"
+      - "feature/the_final_task"
       - "feature/kursovaja_5"
 
 jobs:
