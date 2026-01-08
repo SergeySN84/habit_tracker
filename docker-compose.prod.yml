@@ -46,7 +46,7 @@ services:
     image: postgres:15-alpine
     environment:
         POSTGRES_DB: habit_db
-        POSTGRES_USER: habit_user
+        POSTGRES_USER: postgres
         POSTGRES_PASSWORD: 123159
     volumes:
         - postgres_data:/var/lib/postgresql/data/
