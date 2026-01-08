@@ -62,7 +62,7 @@ jobs:
 
       - name: Clean up test database
         run: |
-          PGPASSWORD=123159 psql -h localhost -U habit_user -c "DROP DATABASE IF EXISTS test_habit_db;"
+          PGPASSWORD=123159 psql -h localhost -U habit_user -d postgres -c "DROP DATABASE IF EXISTS test_habit_db;"
         if: always()
 
   build-and-deploy:
