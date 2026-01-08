@@ -2,6 +2,7 @@
 Django settings for config project.
 """
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -10,6 +11,31 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+TESTING = 'test' in sys.argv
+
+if TESTING:
+    # Используем SQLite для тестов (быстро и надёжно)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "test_db.sqlite3",
+        }
+    }
+else:
+    # Используем PostgreSQL для всего остального
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT"),
+            "TEST": {
+                "NAME": "test_habit_db",
+            },
+        }
+    }
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
