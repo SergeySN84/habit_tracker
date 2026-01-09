@@ -1,0 +1,92 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - "feature/the_final_task"
+      - "feature/kursovaja_5"
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: test_habit_db
+          POSTGRES_USER: habit_user
+          POSTGRES_PASSWORD: 123159
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install --no-root
+
+      - name: Create .env for tests
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+          echo "DEBUG=True" >> .env
+          echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
+          echo "DB_NAME=test_habit_db_${{ github.run_id }}" >> .env
+          echo "DB_USER=habit_user" >> .env
+          echo "DB_PASSWORD=123159" >> .env
+          echo "DB_HOST=localhost" >> .env
+          echo "DB_PORT=5432" >> .env
+
+      - name: Run Flake8 (linting)
+        run: poetry run flake8 .
+
+      - name: Run tests with coverage
+        run: poetry run coverage run manage.py test --keepdb
+
+      - name: Check coverage >= 80%
+        run: poetry run coverage report --fail-under=80
+
+      - name: Clean up test database
+        run: |
+          PGPASSWORD=123159 psql -h localhost -U habit_user -d postgres -c "DROP DATABASE IF EXISTS test_habit_db;"
+        if: always()
+
+  build-and-deploy:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images (dry run)
+        run: |
+          docker compose -f docker-compose.prod.yml build
+
+      - name: Deploy to remote server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_DIR }}
+            git pull origin ${{ github.ref_name }}
+            docker-compose -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.prod.yml up -d --build
